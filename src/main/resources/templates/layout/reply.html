@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<body>
+    <div th:fragment="reply-list">
+        <div class="reply-container">
+            <div class="reply" th:each="reply :${replys}">
+                <div>
+                    <span><a th:href="@{'/visit/user/'+${reply.user.id}}">[[${reply.user.nickname}]]</a>:<a class="ml-2 mr-2"th:href="@{'/visit/user/'+${reply.toUser.id}}">@[[${reply.toUser.nickname}]]</a></span>
+                    <p>[[${reply.content}]]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

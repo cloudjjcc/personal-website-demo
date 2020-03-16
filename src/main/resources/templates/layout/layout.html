@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head th:fragment="head(pageTitle)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit=no">
+    <meta name="description" content="this is wangjc's site">
+    <meta name="author" content="wangjc">
+    <title th:text="${pageTitle}">NullPointer</title>
+    <link rel="icon" href="../../static/img/favicon.ico" th:href="@{/img/favicon.ico}">
+    <!-- Bootstrap CSS -->
+    <link href="../../webjars/bootstrap/4.1.1/css/bootstrap.min.css" th:href="@{/webjars/bootstrap/4.1.1/css/bootstrap.min.css}"
+          rel="stylesheet">
+    <!-- Font-Awesome CSS -->
+    <link href="../../webjars/font-awesome/4.7.0/css/font-awesome.min.css" th:href="@{/webjars/font-awesome/4.7.0/css/font-awesome.min.css}"
+          rel="stylesheet">
+    <!-- paging plugin -->
+    <link rel="stylesheet" href="../../lib/jQueryPage/src/jquery.page.css" th:href="@{/lib/jQueryPage/src/jquery.page.css}">
+    <!-- toastr -->
+    <link rel="stylesheet" href="" th:href="@{/webjars/toastr/2.1.2/build/toastr.css}">
+    <!--highlight-->
+    <link href="http://cdn.bootcss.com/highlight.js/8.0/styles/idea.min.css" rel="stylesheet">
+    <link href="../../css/main.css" th:href="@{/css/main.css}" rel="stylesheet">
+    <link href="../../css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <style>
+        pre {
+            position: relative;
+            margin-bottom: 24px;
+            border-radius: 3px;
+            border: 1px solid #C3CCD0;
+            background: #FFF;
+            overflow: hidden;
+        }
+        code {
+            display: block;
+            padding: 12px 24px;
+            overflow-y: auto;
+            font-weight: 300;
+            font-family: Menlo, monospace;
+            font-size: 0.8em;
+        }
+        code.has-numbering {
+            margin-left: 21px;
+        }
+        .pre-numbering {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            padding: 12px 2px 12px 0;
+            border-right: 1px solid #C3CCD0;
+            border-radius: 3px 0 0 3px;
+            background-color: #EEE;
+            text-align: right;
+            font-family: Menlo, monospace;
+            font-size: 0.8em;
+            color: #AAA;
+        }
+    </style>
+</head>
+
+<body>
+<!-- header -->
+<header th:fragment="header(pageName)">
+    <nav class="navbar navbar-expand-md navbar-dark  bg-dark top-nav">
+        <a class="navbar-brand" href="http://www.nullpointer.site">NullPointer</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto ">
+                <li class="nav-item" th:class="${pageName}eq 'index'?'nav-item active':'nav-item'">
+                    <a class="nav-link" href="/index" th:href="@{/index}">主页
+                    </a>
+                </li>
+                <li class="nav-item" th:class="${pageName}eq 'blog'?'nav-item active':'nav-item'">
+                    <a class="nav-link" href="#">博客</a>
+                </li>
+                <li class="nav-item" th:class="${pageName}eq 'code'?'nav-item active':'nav-item'">
+                    <a class="nav-link " href="#">代码</a>
+                </li>
+                <li class="nav-item" th:class="${pageName}eq 'download'?'nav-item active':'nav-item'">
+                    <a class="nav-link " href="#">下载</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto " sec:authorize="isAnonymous()">
+                <li class="nav-item" th:class="${pageName} eq 'login'?'nav-item active':'nav-item'">
+                    <a class="nav-link " href="#" th:href="@{/login}">登录</a>
+                </li>
+                <li class="nav-item" th:class="${pageName}eq 'register'?'nav-item active':'nav-item'">
+                    <a class="nav-link " href="#"th:href="@{/register}">注册</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto " sec:authorize="isAuthenticated()">
+                <li class="nav-item">
+                    <a class="nav-link " href="#" th:href="@{/logout}">
+                        <span class="fa fa-sign-out">退出</span>
+                        <!-- <span sec:authentication="name"></span>-->
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div>
+        <script th:inline="javascript">
+            // $(function(){
+            // 	$(".top-nav .nav-item").on("click",function(){
+            // 		$(".top-nav .nav-item").removeClass("active");
+            // 		$(this).addClass("active");
+            // 	});
+            // });
+
+            var CONTEXT_PATH= [[@{/}]];
+        </script>
+    </div>
+</header>
+<!-- FOOTER -->
+<footer class="footer" th:fragment="footer">
+    <div class="widewrapper footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 footer-widget">
+                    <h3>
+                        <i class="fa fa-user"></i>关于本站
+                    </h3>
+                    <p>这是<a href="http://www.wangjincan.top">王金灿</a>的个人网站，主要提供文章和代码分享、资源下载功能。</p>
+                </div>
+
+                <div class="col-md-4 footer-widget">
+                    <h3>
+                        <i class="fa fa-pencil"></i> 友情链接
+                    </h3>
+                    <ul class="clean-list">
+                        <li>
+                            <a href="#">暂无</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4 footer-widget">
+                    <h3>
+                        <i class="fa fa-envelope"></i>联系站长
+                    </h3>
+                    <p>Email:1244966299@qq.com</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="widewrapper copyright">Copyright 2020 <a href="http://www.beian.miit.gov.cn">滇ICP备17006676号-1</a></div>
+</footer>
+<div th:fragment="js">
+    <!-- jQuery -->
+    <script type="text/javascript" src="../../webjars/jquery/3.3.1-1/jquery.min.js" th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}"></script>
+    <!-- Bootstrap -->
+    <script type="text/javascript" src="../../webjars/bootstrap/4.1.1/js/bootstrap.min.js" th:src="@{/webjars/bootstrap/4.1.1/js/bootstrap.min.js}"></script>
+    <!-- jQueryPage -->
+    <script src="../../lib/jQueryPage/src/jquery.page.js" th:src="@{/lib/jQueryPage/src/jquery.page.js}"></script>
+    <!-- toastr -->
+    <script src="../../webjars/toastr/2.1.2/build/toastr.min.js" th:src="@{/webjars/toastr/2.1.2/build/toastr.min.js}"></script>
+    <!-- md5 -->
+    <script src="../../js/jQuery.md5.js" th:src="@{/js/jQuery.md5.js}"></script>
+    <!--highlight-->
+    <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
+    <script >hljs.initHighlightingOnLoad();</script>
+    <script>
+        $(function () {
+            toastr.options = {
+                "closeButton": false,
+                "debug": false,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "2000",
+                "hideDuration": "1000",
+                "timeOut": "2000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+        });
+    </script>
+    <script>
+        //numbering for pre>code blocks
+        $(function(){
+            $('pre code').each(function(){
+                var lines = $(this).text().split('\n').length - 1;
+                var $numbering = $('<ul/>').addClass('pre-numbering');
+                $(this)
+                    .addClass('has-numbering')
+                    .parent()
+                    .append($numbering);
+                for(i=1;i<=lines;i++){
+                    $numbering.append($('<li/>').text(i));
+                }
+            });
+        });
+    </script>
+</div>
+</body>
+
+</html>

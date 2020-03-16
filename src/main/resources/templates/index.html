@@ -1,0 +1,184 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head th:replace="~{layout/layout::head(pageTitle='主页')}" ></head>
+
+<body>
+	<div th:replace="~{layout/layout::js}"></div>
+	<header th:replace="~{layout/layout::header(pageName='index')}"> </header>
+	<div class="container main-content">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="">
+					<div></div>
+					<form class="form-inline mt-2 mt-md-0 mr-2">
+						<input class="form-control mr-sm-2" type="text" placeholder="请输入关键字" aria-label="Search" id="keyword">
+						<button id="keyword-search" class="btn btn-outline-dark my-2 my-sm-0" type="button">搜索</button>
+					</form>
+				</div>
+				<div class="utils">
+					<div>
+						排序
+						<i class="fa fa-sort-amount-desc ml-2"></i>
+					</div>
+					<div>
+						<!--<a href="javascript:void(0)" class="ml-2">默认-->
+							<!--<i class="fa fa-sort-down"></i>-->
+						<!--</a>-->
+						<!--<a href="javascript:void(0)" class="ml-2">最近发布-->
+							<!--<i class="fa fa-sort-down"></i>-->
+						<!--</a>-->
+						<!--<a href="javascript:void(0)" class="ml-2">最受欢迎-->
+							<!--<i class="fa fa-sort-down"></i>-->
+						<!--</a>-->
+						<ul class="nav nav-sort">
+							<li class="nav-item">
+								<a class="nav-link active-sort" data-sort="0" href="javascript:void(0)">默认<i class="fa fa-sort-down"></i></a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-sort="1" href="javascript:void(0)">最近发布<i class="fa fa-sort-down"></i></a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" data-sort="2" href="javascript:void(0)">最受欢迎<i class="fa fa-sort-down"></i></a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="article-container">
+					<div class="article-list" id="article-list" th:attr="totalPages=${articles.totalPages},totalCount=${articles.totalElements}">
+						<div class="card mb-3" th:each="article : ${articles}">
+							<div class="card-header">
+								<span class="ml-2 ">
+									<i class="fa fa-calendar p-1"></i>[[${#dates.format(article.publishDate,'MM/dd/yyyy')}]]</span>
+							</div>
+							<div class="card-body">
+								<h5 class="card-title">
+									<a th:href="@{'/article/details/'+${article.articleId}}" target="_blank" class="card-link" th:text="${article.title}"></a>
+								</h5>
+								<p class="card-text"></p>
+								<div class="my-card-footer">
+									<div>
+										<span th:text="${article.source}eq 1?'原创':'转载'"></span>
+									</div>
+									<div>
+										<!-- <span class="ml-2 ">
+											<i class="fa fa-user p-1"></i>[[${article.author}]]</span> -->
+										<span class="ml-2 ">
+											<i class="fa fa-eye p-1"></i>[[${article.visitCount}]]</span>
+										<span class="ml-2 ">
+											<i class="fa fa-thumbs-up p-1"></i>[[${article.likeCount}]]</span>
+										<span class="ml-2 ">
+											<i class="fa fa-comments p-1"></i>[[${article.commentCount}]]</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+                <div th:if="${articles.totalElements le 0}" class="text-center m-5"> <h1>没有文章。。。</h1></div>
+				<div th:replace="~{layout/paging::paging}"></div>
+			</div>
+			<div class="col-md-3">
+				<aside class="blog-aside">
+					<div class="card">
+						<div class="card-header">
+							<strong>文章分类</strong>
+						</div>
+						<ul class="list-group list-group-flush">
+							<li class="list-group-item active">
+								<a class="_category_" href="javascript:void(0)">所有分类
+									<span id="all_category_count" class="badge badge-secondary ml-2">[[${articles.totalElements}]]</span>
+								</a>
+							</li>
+							<li class="list-group-item " th:each="category : ${categorys}">
+								<a class="_category_" href="javascript:void(0)" th:attr="category=${category.name}">[[${category.name}]]
+									<span class="badge badge-secondary ml-2">[[${category.count}]]</span>
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<strong>文章标签</strong>
+						</div>
+						<ul class="tags">
+							<li class="active">
+								<a class="_tag_" th:attr="tag=${tag}" href="javascript:void(0)" th:each="tag : ${tags}">[[${tag}]]</a>
+							</li>
+						</ul>
+					</div>
+				</aside>
+			</div>
+		</div>
+	</div>
+	<footer th:replace="~{layout/layout::footer}"></footer>
+</body>
+<script type="text/javascript" th:inline="javascript">
+	$(function () {
+		var currentPage = 0;//当前页号
+		var category = "";//文章分类
+		var tag = "";//文章标签
+		var keyword = "";//关键字
+        var sortValue=0;//排序方式
+		$("#page").Page({
+			totalPages: [[${ articles.totalPages }]],//分页总数
+			liNums: 7,//分页的数字按钮数(建议取奇数)
+			activeClass: 'activP', //active 类样式定义
+			callBack: function (pageNo) {
+				currentPage = pageNo;
+				queryArticles();
+			}
+		});
+		function queryArticles() {
+			$.ajax({
+				type:"get",
+				url: CONTEXT_PATH+"articles",
+				contentType: 'application/json',
+				data: {
+					"pageNo": currentPage > 0 ? currentPage - 1 : 0,
+					"pageSize": 10,
+					"category": category,
+					"tag": tag,
+					"keyword": keyword,
+                    "sortValue":sortValue
+				},
+				success: function (data) {
+					$("#article-container").html(data);
+					if (currentPage == 0) {
+						var totalPages = $("#article-list").attr("totalPages");
+						$("#page").setTotalPages(parseInt(totalPages));//分页总数
+					}
+				},
+				error: function () {
+					toastr.error("请稍后再试!");
+				}
+			});
+		}
+		$("._category_").click(function () {
+			$("._category_").parent().removeClass("active");
+			$(this).parent().addClass("active");
+			category = $(this).attr("category");
+			currentPage = 0;
+			queryArticles();
+		});
+		$("._tag_").click(function () {
+			$("._tag_").parent().removeClass("active");
+			$(this).parent().addClass("active");
+			tag = $(this).attr("tag");
+			currentPage = 0;
+			queryArticles();
+		});
+		$("#keyword-search").click(function () {
+			keyword = $("#keyword").val();
+			currentPage = 0;
+			queryArticles();
+		});
+		$(".nav-sort  a").click(function(){
+            $(".nav-sort  a").removeClass("active-sort");
+		    $(this).addClass("active-sort");
+            sortValue=$(this).attr("data-sort");
+            queryArticles();
+        });
+	})
+</script>
+
+</html>

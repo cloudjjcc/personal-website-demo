@@ -1,0 +1,115 @@
+spring:
+  profiles:
+    active: dev 
+  application:
+    name: demo
+  thymeleaf:
+    mode: HTML
+  mvc:
+    favicon:
+      enabled: false
+  mail:
+    protocol: smtp
+    host: #
+    username: #
+    password: #
+    port: 25
+  jpa:
+      open-in-view: true
+      properties:
+        hibernate:
+          enable_lazy_load_no_trans: true  #支持懒加载
+  cache:
+    type: redis #缓存类型为redis
+  servlet:
+    multipart:
+      max-file-size: 4096Mb
+      max-request-size: 4096Mb
+server:
+  port: 8888
+  servlet:
+    context-path: /
+captcha:
+  timeout: 60 #验证码超时时间（s）
+usercache:
+  timeout: 1800 #用户信息有效期（s）
+jwt:
+  header: Authorization #权限认证头
+  secret: #秘钥
+  expiration: 1800 #过期时间
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo?useUnicode=true&useSSL=true&verifyServerCertificate=false&characterEncoding=UTF-8
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 10
+      max-wait-millis: 60000
+      min-idle: 5
+      initial-size: 5
+      filters: stat
+  redis:
+    host: 10.0.75.1
+    port: 6379
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch
+      cluster-nodes: localhost:9300
+  jpa:
+    show-sql: true
+  thymeleaf:
+    cache: false
+
+oss:
+  end-point: https://oss-cn-beijing.aliyuncs.com
+  domain: #
+  access-key-id: #
+  secret-access-key: #
+  bucket-name: #
+  expiration-sec-default: 1800
+  max-upload-size: 1073741824 #最大上次文件大小
+  callback-url-host: #
+
+debug: true
+---
+spring:
+  profiles: prod
+  datasource:
+    url: jdbc:mysql://localhost/demo?useUnicode=true&useSSL=true&verifyServerCertificate=false&characterEncoding=UTF-8
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      max-active: 10
+      max-wait-millis: 60000
+      min-idle: 5
+      initial-size: 5
+  redis:
+    host: localhost
+    port: 6379
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch
+      cluster-nodes: localhost:9300
+server: 
+  use-forward-headers: true
+  tomcat: 
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+    port-header: X-Forwarded-Port
+oss:
+  end-point: https://oss-cn-beijing-internal.aliyuncs.com
+  domain: #
+  access-key-id: #
+  secret-access-key: #
+  bucket-name: nullpointer-bucket
+  expiration-sec-default: 1800
+  max-upload-size: 1073741824 #最大上次文件大小
+  callback-url-host: #
+##amdin 用户名密码
+admin-username: #
+admin-password: #

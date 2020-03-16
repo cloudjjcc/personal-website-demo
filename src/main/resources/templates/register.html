@@ -1,0 +1,181 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head th:replace="~{layout/layout::head(pageTitle='注册')}"></head>
+
+<body>
+<div th:replace="~{layout/layout::js}"></div>
+<header th:replace="~{layout/layout::header(pageName='register')}"></header>
+<div class="container login-form-container ">
+    <form method="post" id="registerForm">
+        <h2 class="text-center">注册</h2>
+        <div class="form-group ">
+            <label for="username" class="col-form-label">账号(4到20位，字母开头)</label>
+            <input type="text"
+                   class="form-control"
+                   id="username"
+                   name="username"
+                   minlength="4"
+                   maxlength="20"
+                   onchange="checkUsername(this)"
+                   placeholder="请输入账号">
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group ">
+            <label for="password" class="col-form-label">密码(6-20位)</label>
+            <input type="password"
+                   class="form-control"
+                   id="password"
+                   name="password"
+                   minlength="6"
+                   maxlength="20"
+                   required
+                   placeholder="请输入密码">
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group ">
+            <label for="passwordAgain" class="col-form-label">确认密码</label>
+            <input type="password"
+                   class="form-control"
+                   id="passwordAgain"
+                   name="passwordAgain"
+                   maxlength="30"
+                   required
+                   placeholder="请再次输入密码">
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group ">
+            <div class="d-flex justify-content-between">
+                <a id="captcha-link" href="javascript:void(0)">
+                    <img id="captcha-img" th:src="@{/api/common/captcha?key=00000000000000000000000000000000}"></img>
+                </a>
+                <input type="text"
+                       class="form-control"
+                       id="captchaCode"
+                       name="captchaCode"
+                       minlength="4"
+                       maxlength="4"
+                       required
+                       placeholder="请输入验证码">
+            </div>
+            <span id="cc-error-text"class=" text-danger"></span>
+        </div>
+        <div class="form-group ">
+            <input type="hidden" id="captchaKey" name="key" value="00000000000000000000000000000000">
+            <button type="button" class="btn btn-primary btn-lg w-100" id="btnRegister">注册</button>
+        </div>
+        <div >
+            <p id="error-info" class="text-danger"></p>
+        </div>
+    </form>
+</div>
+</body>
+<script th:inline="javascript">
+    $(function () {
+        $("#captcha-link").on("click", function () {
+            var captchaKey = $.md5("" + Math.random());
+            var captchaUrl = CONTEXT_PATH + "api/common/captcha?key=" + captchaKey;
+            $("#captcha-img").attr("src", captchaUrl);
+            $("#captchaKey").val(captchaKey);
+        });
+        $("#btnRegister").on("click", function () {
+            if (!check()) {
+                return;
+            }
+            var formData={
+                username:$("#username").val(),
+                password:$("#password").val(),
+                captchaCode:$("#captchaCode").val(),
+                captchaKey:$("#captchaKey").val()
+            };
+            $.ajax({
+                type: "post",
+                url: CONTEXT_PATH + "api/common/register",
+                dataType: 'json',
+                contentType:'application/json;charset=utf-8',
+                data: JSON.stringify(formData),
+                success: function (resp) {
+                    if (resp.success) {
+                        toastr.success("注册成功,2秒后跳转到登录页面！");
+                        setTimeout(function () {
+                            location.href = "/login";
+                        }, 2000)
+                    } else {
+                        toastr.info(resp.data.cause);
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("注册失败，请稍后再试！");
+                    $("#captcha-link").click();
+                }
+            });
+        });
+    });
+
+    function check() {
+        var pass=true;
+        if(!checkIsRegisterUserName($("#username").val())){
+            $("#username+.text-danger").text("只能输入4-20个以字母开头、可带数字、“_”、“.”的字串");
+            pass=pass&&false;
+        }else{
+            $("#username+.text-danger").text("");
+        }
+        if(!checkIsPasswd($("#password").val())){
+            $("#password+.text-danger").text("只能输入6-20个由字母、数字、特殊字符中至少两种组成");
+            pass=pass&&false;
+        }else{
+            $("#password+.text-danger").text("");
+        }
+        if ($("#passwordAgain").val() != $("#password").val()) {
+            $("#passwordAgain+.text-danger").text("两次输入密码不一致！");
+            pass=pass&&false;
+        }else{
+            $("#passwordAgain+.text-danger").text("");
+        }
+        if(!checkCaptcha($("#captchaCode").val())){
+            $("#cc-error-text").text("请正确输入验证码！");
+            pass=pass&&false;
+        }else{
+            $("#cc-error-text").text("");
+        }
+        return pass;
+    }
+
+    function checkUsername(_this) {
+        var username = $(_this).val();
+        $.ajax({
+            type: "get",
+            url: CONTEXT_PATH + "api/common/check/username?username=" + username,
+            contentType: 'application/json',
+            success: function (data) {
+                if (data.success && !data.data) {
+
+                } else {
+                    $("#passwordAgain+.text-danger").text(data.data.cause);
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    //校验登录名：只能输入4-20个以字母开头、可带数字、“_”、“.”的字串
+    function checkIsRegisterUserName(s) {
+        var patrn = /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){3,19}$/;
+        if (!patrn.exec(s)) return false;
+        return true
+    }
+    //校验密码：只能输入6-20个由字母、数字、特殊字符中至少两种组成
+    function checkIsPasswd(s) {
+        var patrn = /(?!^\\d+$)(?!^[a-zA-Z]+$)(?!^[_#@]+$).{6,20}/;
+        if (!patrn.exec(s)) return false;
+        return true
+    }
+    //校验验证码
+    function checkCaptcha(s) {
+        if (s.length<4) return false;
+        return true
+    }
+</script>
+
+</html>

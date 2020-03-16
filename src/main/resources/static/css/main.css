@@ -1,0 +1,154 @@
+.main-content {
+	margin-top: 20px;
+}
+
+.blog-aside {
+	margin: 2px;
+}
+
+.blog-aside .card {
+	margin-bottom: 5rem;
+}
+
+.tags {
+	list-style: none;
+	margin: 0;
+	padding-left: 0;
+}
+
+.tags li {
+	float: left;
+}
+
+.tags li a {
+	padding: 3px 15px;
+	display: inline-block;
+	margin: 5px;
+	border: 1px solid rgb(221, 221, 221);
+}
+
+.tags li a:hover {
+	border-color: #222;
+}
+
+.only-word {
+	margin-left: 1rem;
+}
+
+.utils {
+	display: flex;
+	justify-content: space-between;
+	margin: 0px 10px;
+}
+
+.my-card-footer {
+	display: flex;
+	justify-content: space-between;
+	font-size:0.5rem;
+	color:#858585;
+}
+
+a:hover {
+	text-decoration: none;
+}
+/* 避免图片超出 */
+article img {
+	max-width: 100%;
+}
+
+.blog-main {
+	margin: 0 auto;
+	max-width: 800px;
+	padding: 1rem;
+}
+
+.blog-main h1 {
+	font-size: 2rem;
+}
+
+.blog-main h2 {
+	font-size: 1.5rem;
+}
+
+.blog-main h3 {
+	font-size: 1.3rem;
+}
+
+.blog-main h4 {
+	font-size: 1.1rem;
+}
+
+.blog-main h5 {
+	font-size: 1rem;
+}
+
+.article-content {
+	word-break: break-all;
+	color: #4f4f4f;
+	font-weight: 400;
+	line-height: 1.7rem;
+	text-align: justify;
+}
+
+.footer {
+	margin-top: 100px;
+}
+.list-group-item.active{
+	background-color: #dee2e6;
+    border-color: #dee2e6;
+}
+.relative-article>div{
+	line-height: 2rem;
+}
+.form-signin {
+	width: 100%;
+	max-width: 330px;
+	padding: 15px;
+	margin: 0 auto;
+  }
+  .form-signin .checkbox {
+	font-weight: 400;
+  }
+  .form-signin .form-control {
+	position: relative;
+	box-sizing: border-box;
+	height: auto;
+	padding: 10px;
+	font-size: 16px;
+  }
+  .form-signin .form-control:focus {
+	z-index: 2;
+  }
+  .form-signin input[type="email"] {
+	margin-bottom: -1px;
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
+  }
+  .form-signin input[type="password"] {
+	margin-bottom: 10px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+  }
+  .v-center{
+	 position: relative;
+	 margin: 20% auto;
+  }
+  .login-form-container{
+	max-width: 330px;
+	margin: 100px auto auto auto;
+  }
+  .avatar{
+	display: block;
+	margin-right: 8px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+  }
+  .reply-container{
+	margin-top: 20px;
+	padding: 5px 0 5px 20px;
+	border-left: 2px solid #d9d9d9;
+  }
+  .active-sort{
+	  color:blue;
+  }

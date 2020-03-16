@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head th:replace="~{layout/layout::head(pageTitle=${details.title})}"></head>
+
+<body>
+	<header th:replace="~{layout/layout::header(pageName='blog')}"></header>
+	<div class="widewrapper main main-content">
+		<div class="container">
+			<div class="row">
+				<div class="blog-main col-md-auto">
+					<article class="blog-post">
+						<div class="body">
+							<h1 th:text="${details.title}">Article Title</h1>
+							<div class="meta">
+								<!-- <span>
+									<i class="fa fa-user"></i> wangjc </span> -->
+								<span>
+									<i class="fa fa-calendar"></i>[[${#dates.format(details.publishDate,'MM/dd/yyyy')}]]</span>
+								<span>
+									<i class="fa fa-eye"></i>[[${details.visitCount}]]</span>
+								<span>
+									<i class="fa fa-thumbs-up"></i>[[${details.likeCount}]]</span>
+								<span>
+									<i class="fa fa-comments"></i>[[${details.commentCount}]]</span>
+                                <span th:if="${details.source} eq 1">原创</span>
+                                <span class="meta" th:if="${details.source} eq 2">原文链接：<a th:href="@{${details.sourceUrl}}">[[${details.sourceUrl}]]</a></span>
+							</span>
+							<article class="article-content" th:utext="${details.content}"></article>
+						</div>
+					</article>
+
+					<!-- <aside class="social-icons clearfix">
+						<h3>Share on</h3>
+						<a href="#"><i class="fa fa-facebook"></i></a> <a href="#"><i
+							class="fa fa-twitter"></i></a> <a href="#"><i
+							class="fa fa-google"></i></a>
+					</aside> -->
+					<aside class="relative-article">
+						<div class="prev-article" th:if="${prevArticle}">
+							<a href="#" th:href="@{'/article/details/'+${prevArticle}?${prevArticle.id}:'#'}">
+								<span class="border ">上一篇：</span>[[${prevArticle}?${prevArticle.title}:'']]</a>
+						</div>
+						<div class="next-article" th:if="${nextArticle}">
+							<a href="#" th:href="@{'/article/details/'+${nextArticle}?${nextArticle.id}:'#'}">
+								<span class="border ">下一篇：</span>[[${nextArticle}?${nextArticle.title}:'']]</a>
+						</div>
+					</aside>
+					<div th:if="not ${details.commentDisabled}">
+						<aside class="create-comment" sec:authorize="isAnonymous()">
+							<hr>
+							<h2 class="text-left">
+								<i class="fa fa-pencil"></i> 登录后发表评论
+								<a class="btn btn-pramary ml-2" th:href="@{/login}">登陆</a>
+							</h2>
+						</aside>
+						<aside id="create-comment" class="create-comment" sec:authorize="isAuthenticated()">
+							<hr>
+							<h2 class="text-left">
+								<i class="fa fa-pencil"></i> 写评论
+							</h2>
+							<form class="comment-form" id="comment-form">
+								<input type="hidden" id="comment-pid" name="pid">
+								<input type="hidden" id="comment-aid" name="articleId" th:value="${details.articleId}">
+								<textarea rows="3" id="comment-content" name="content" placeholder="写下你的评论..." class="form-control input-lg" maxlength="1000"></textarea>
+								<div class="d-flex justify-content-between">
+									<span class="error-comment small meta"></span>
+									<button type="button" id="comment-btn" class="btn btn-xlarge btn-outline-dark">提交</button>
+								</div>
+							</form>
+						</aside>
+						<aside id="comments-container" th:attr="cuserid=${#authorization.expression('isAnonymous()')}?'':${#authentication.principal.id}">
+							<aside class="comments" id="comments-list">
+								<hr>
+								<h2 class="text-left">
+									<i class="fa fa-comments"></i> [[${comments.totalElements}]] 条评论
+								</h2>
+								<div class="card mb-2" th:each="comment : ${comments}">
+									<div class="d-flex justify-content-between p-2 align-items-center">
+										<div class="d-flex p-2 align-items-end">
+											<div>
+												<a href="#" th:href="@{'/visit/user/'+${comment.user.id}}">
+													<img src="#" th:src="${comment.user.avatar}" class="avatar">
+												</a>
+											</div>
+											<div class="">
+												<strong class="">[[${comment.user.nickname}]]</strong>
+												<span class="meta small">[[${#dates.format(comment.date,'MM/dd/yyyy HH:mm:ss')}]]</span>
+												<span class="meta small">#[[${comment.floor}]]楼</span>
+											</div>
+										</div>
+										<div class="d-flex flex-row-reverse">
+											<a href="javascript:void(0)" onclick="reply(this)" class="card-link ml-2 fa fa-comment-o reply" th:attr="pid=${comment.id},uid=${comment.user.id},uname=${comment.user.nickname}">回复</a>
+											<a href="javascript:void(0)" onclick="delComment(this)" class="card-link ml-2 fa fa-trash-o" th:attr="cid=${comment.id}" th:if="${#authorization.expression('isAuthenticated()')} and (${#authentication.principal.id} eq ${comment.user.id})">删除</a>
+										</div>
+									</div>
+									<div class="card-body">
+										<div class="card-text">
+											<p th:text="${comment.content}"></p>
+										</div>
+										<div class="reply-list-container" th:id="'reply-list-container-'+${comment.id}">
+											<div th:id="'reply-list-'+${comment.id}">
+
+											</div>
+										</div>
+										<!-- <a href="#" class="card-link"><i class="fa fa-thumbs-up" th:class="${comment.}"></i>赞</a> -->
+									</div>
+								</div>
+							</aside>
+						</aside>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="~{layout/layout::js}"></div>
+	<footer th:replace="~{layout/layout::footer}"></footer>
+</body>
+<script type="text/javascript" th:inline="javascript">
+	$(function () {
+		$("#comment-btn").on("click", function () {
+			var len = $("#comment-content").val().length;
+			if (len < 10) {
+				toastr.info("评论不可少于10个字符！");
+				return;
+			}
+			var articleId = $("#comment-aid").val();
+			var pid = $("#comment-pid").val();
+			var content = $("#comment-content").val();
+			$.ajax({
+				type: "post",
+				url: CONTEXT_PATH+"article/user/comment",
+				contentType: 'application/json',
+				data: JSON.stringify({
+					"articleId": articleId,
+					"content": content,
+					"pid": pid,
+					"toUser": {
+						'id': uid
+					}
+				}),
+				success: function (data) {
+					if (pid != '') {
+						toastr.success("回复成功！");
+						$("#reply-list-container-" + pid).html(data);
+					} else {
+						toastr.success("评论成功！");
+						$("#comments-container").html(data);
+					}
+					$("#comment-content").val("");
+					$("#comment-pid").val("");
+					uid = "";
+					checkLen();
+				},
+				error: function () {
+					toastr.error("评论失败，请稍后再试！");
+				}
+			});
+		});
+		$("#comment-content").on('keyup', checkLen);
+		function checkLen() {
+			var len = $("#comment-content").val().length;
+			var maxlength = $("#comment-content").attr("maxLength");
+			$(".error-comment").text("还可输入" + (parseInt(maxlength) - parseInt(len)) + "个字符。");
+		}
+	});
+	var uid = "";
+	function reply(_this) {
+		$("#comment-pid").val($(_this).attr("pid"));
+		var uname = $(_this).attr("uname");
+		uid = $(_this).attr("uid");
+		var cuserid = $("#comments-container").attr("cuserid");
+		if(!cuserid||cuserid==''){
+			location.href="/login?from="+location.href;
+		}else if (cuserid == uid) {
+            $("#comment-pid").val("");
+			toastr.info("不可回复自己！");
+
+		} else {
+			location.href = "#creat-comment";
+			$("#comment-content").val("<回复:" + uname + "> ");
+			$("#comment-content").focus();
+		}
+	}
+	function delComment(_this){
+		var commentId=$(_this).attr("cid");
+		$.ajax({
+				type: "delete",
+				url: CONTEXT_PATH+"article/user/comment/"+commentId,
+				contentType: 'application/json',
+				success: function (data) {
+					toastr.success("删除成功！");
+					location.reload();
+				},
+				error: function () {
+					toastr.error("删除失败，请稍后再试！");
+				}
+			});
+	}
+</script>
+
+</html>
